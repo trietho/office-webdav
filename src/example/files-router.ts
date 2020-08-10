@@ -1,12 +1,5 @@
-# office-webdav
-
-Add WebDav abilities to your existing Express project to allow MS Office apps (Word, Excel, PowerPoint) open and edit documents directly on web site via url
-
-See github for the full example
-
-```js
 import * as express from 'express';
-import { OfficeWebDavBase } from 'office-webdav';
+import { OfficeWebDavBase } from '../modules/office-webdav';
 import * as fs from 'fs';
 
 export class FilesRouter extends OfficeWebDavBase {

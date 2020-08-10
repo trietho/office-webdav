@@ -1,0 +1,37 @@
+{
+  "name": "office-webdav",
+  "version": "0.1.0",
+  "description": "Add WebDav abilities to your existing Express project to allow MS Office apps (Word, Excel, PowerPoint) open and edit documents directly on web site via url",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start:example": "npm run build && node ./dist/example/server.js",
+    "prepare": "npm run build"
+  },
+  "files": [
+    "dist/modules/*",
+    "dist/index.*"
+  ],
+  "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trietho/office-webdav.git"
+  },
+  "author": "trietho",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/trietho/office-webdav/issues"
+  },
+  "homepage": "https://github.com/trietho/office-webdav#readme",
+  "devDependencies": {
+    "@types/express": "^4.17.7",
+    "@types/node": "^14.0.27",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.7",
+    "@types/uuid": "^8.0.1"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "uuid": "^8.3.0"
+  }
+}
