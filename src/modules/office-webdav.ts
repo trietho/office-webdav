@@ -1,5 +1,6 @@
 import * as express from 'express'
 import { v4 as uuidv4 } from 'uuid';
+import { exception } from 'console';
 
 export abstract class OfficeWebDavBase {
 
@@ -13,8 +14,8 @@ export abstract class OfficeWebDavBase {
 
     public intializeRoutes() {
         this.handler.lock(["/:filename", "/:sessionid/:filename"], this.lockFile)
-        this.handler.head(["/","/:filename", "/:sessionid/:filename"], this.head)
-        this.handler.options(["/","/:filename", "/:sessionid/:filename"], this.options)
+        this.handler.head(["/", "/:filename", "/:sessionid/:filename"], this.head)
+        this.handler.options(["/", "/:filename", "/:sessionid/:filename"], this.options)
         this.handler.unlock(["/:filename", "/:sessionid/:filename"], this.unlock)
         this.handler.put(["/:filename", "/:sessionid/:filename"], this.putFile)
         this.handler.get(["/:filename", "/:sessionid/:filename"], this.getFile)
@@ -22,21 +23,41 @@ export abstract class OfficeWebDavBase {
 
     lockFile(req: express.Request, res: express.Response, next?: express.NextFunction) {
         res.setHeader('Content-Type', "application/xml; charset=utf-8")
-        
-        res.send(lockFileXML(uuidv4(),getRequestUrl(req)))
+
+        res.send(lockFileXML(uuidv4(), getRequestUrl(req)))
     }
 
-    options(req: express.Request, res: express.Response, next?: express.NextFunction){
+    options(req: express.Request, res: express.Response, next?: express.NextFunction) {
         res.sendStatus(200)
     }
 
-    unlock(req: express.Request, res: express.Response, next?: express.NextFunction){
+    unlock(req: express.Request, res: express.Response, next?: express.NextFunction) {
         res.sendStatus(200)
     }
 
-    head(req: express.Request, res: express.Response, next?: express.NextFunction){
+    head(req: express.Request, res: express.Response, next?: express.NextFunction) {
         res.sendStatus(200)
     }
+
+}
+
+export function OfficeWebDavRouter(handler?: any): express.Router {
+    var router = express.Router()
+    router.use(OfficeWebDavMiddleware);
+    router.head(["/", "/:filename", "/:sessionid/:filename"], handler?.head || function (req: express.Request, res: express.Response) { res.sendStatus(200) })
+    router.options(["/", "/:filename", "/:sessionid/:filename"], handler?.options || function (req: express.Request, res: express.Response) { res.sendStatus(200) })
+    router.unlock([ "/:filename", "/:sessionid/:filename"], handler?.unlock || function (req: express.Request, res: express.Response) { res.sendStatus(200) })
+
+    router.lock([ "/:filename", "/:sessionid/:filename"], handler?.lock ||
+        function (req: express.Request, res: express.Response) {
+            res.setHeader('Content-Type', "application/xml; charset=utf-8")
+
+            res.send(lockFileXML(uuidv4(), getRequestUrl(req)))
+        })
+    router.put([ "/:filename", "/:sessionid/:filename"], handler?.putFile || function (req: express.Request, res: express.Response) { throw new Error("Method not implemented.") })
+    router.get([ "/:filename", "/:sessionid/:filename"], handler?.getFile || function (req: express.Request, res: express.Response) { throw new Error("Method not implemented.") })
+
+    return router;
 }
 
 function lockFileXML(lockToken: string, fileUrl: string, author = "Anonymous", timeout = 3600): string {
