@@ -22,9 +22,10 @@ export abstract class OfficeWebDavBase {
     }
 
     lockFile(req: express.Request, res: express.Response, next?: express.NextFunction) {
+        var lockToken = uuidv4()
         res.setHeader('Content-Type', "application/xml; charset=utf-8")
-
-        res.send(lockFileXML(uuidv4(), getRequestUrl(req)))
+        res.setHeader('Lock-Token', lockToken);
+        res.send(lockFileXML(lockToken, getRequestUrl(req)))
     }
 
     options(req: express.Request, res: express.Response, next?: express.NextFunction) {
@@ -50,9 +51,11 @@ export function OfficeWebDavRouter(handler?: any): express.Router {
 
     router.lock([ "/:filename", "/:sessionid/:filename"], handler?.lock ||
         function (req: express.Request, res: express.Response) {
+            var lockToken = uuidv4()
             res.setHeader('Content-Type', "application/xml; charset=utf-8")
+            res.setHeader('Lock-Token', lockToken);
 
-            res.send(lockFileXML(uuidv4(), getRequestUrl(req)))
+            res.send(lockFileXML(lockToken, getRequestUrl(req)))
         })
     router.put([ "/:filename", "/:sessionid/:filename"], handler?.putFile || function (req: express.Request, res: express.Response) { throw new Error("Method not implemented.") })
     router.get([ "/:filename", "/:sessionid/:filename"], handler?.getFile || function (req: express.Request, res: express.Response) { throw new Error("Method not implemented.") })
